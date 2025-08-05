@@ -38,10 +38,10 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 50),
               ElevatedButton.icon(
                 onPressed: () {},
-                icon: Image.asset(
-                  'assets/images/google_logo.png',
-                  height: 24,
-                ),
+                // icon: Image.asset(
+                //   'assets/images/google_logo.png',
+                //   height: 24,
+                // ),
                 label: const Text('Sign in with Google'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -52,10 +52,10 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 10),
               ElevatedButton.icon(
                 onPressed: () {},
-                icon: Image.asset(
-                  'assets/images/facebook_logo.png',
-                  height: 24,
-                ),
+                // icon: Image.asset(
+                //   'assets/images/facebook_logo.png',
+                //   height: 24,
+                // ),
                 label: const Text('Sign in with Facebook'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[700],

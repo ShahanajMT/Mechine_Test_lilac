@@ -57,7 +57,7 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: authProvider.countryCode,
-                      items: <String>['+91'].map((String value) {
+                      items: <String>['+91', '+1'].map((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),

@@ -57,7 +57,7 @@ class AuthProvider with ChangeNotifier {
       final verifiedUser = await _apiService.verifyOtp(phone, otp);
       if (verifiedUser != null) {
         _isVerified = true;
-        _user = verifiedUser;
+        _user = verifiedUser as User?;
       } else {
         _errorMessage = 'Invalid OTP. Please try again.';
       }
