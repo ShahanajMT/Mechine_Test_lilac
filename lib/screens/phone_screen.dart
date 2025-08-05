@@ -105,7 +105,7 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
                     ? null
                     : () async {
                         final fullPhoneNumber = '${authProvider.countryCode}${_phoneController.text}';
-                        await authProvider.requestOtp(fullPhoneNumber);
+                        await authProvider.requestOtp(fullPhoneNumber, otp: '');
                         if (!mounted) return;
                         if (authProvider.otpSent) {
                           Navigator.push(

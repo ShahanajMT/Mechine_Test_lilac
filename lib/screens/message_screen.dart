@@ -1,61 +1,74 @@
+
+
+
 import 'package:fliq/providers/auth_provider.dart';
 import 'package:fliq/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class MessagesScreen extends StatelessWidget {
+class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
 
+  @override
+  State<MessagesScreen> createState() => _MessagesScreenState();
+}
+
+class _MessagesScreenState extends State<MessagesScreen> {
   final List<Map<String, dynamic>> contacts = const [
-    {
-      'name': 'Christina',
-      'image': 'https://randomuser.me/api/portraits/men/1.jpg',
-    },
-    {
-      'name': 'Patricia',
-      'image': 'https://randomuser.me/api/portraits/women/2.jpg',
-    },
-    {
-      'name': 'Celestine',
-      'image': 'https://randomuser.me/api/portraits/men/3.jpg',
-    },
-    {
-      'name': 'Celestine',
-      'image': 'https://randomuser.me/api/portraits/women/4.jpg',
-    },
-    {
-      'name': 'Elizabeth',
-      'image': 'https://randomuser.me/api/portraits/men/5.jpg',
-    },
+    {'name': 'Christina', 'image': 'https://randomuser.me/api/portraits/men/1.jpg'},
+    {'name': 'Patricia', 'image': 'https://randomuser.me/api/portraits/women/2.jpg'},
+    {'name': 'Celestine', 'image': 'https://randomuser.me/api/portraits/men/3.jpg'},
+    {'name': 'Celestine', 'image': 'https://randomuser.me/api/portraits/women/4.jpg'},
+    {'name': 'Elizabeth', 'image': 'https://randomuser.me/api/portraits/men/5.jpg'},
   ];
 
-  final List<Map<String, dynamic>> chats = const [
-    {
-      'name': 'Regina Bearden',
-      'image': 'https://randomuser.me/api/portraits/women/6.jpg',
-      'time': '10:00 AM',
-    },
-    {
-      'name': 'Rhonda Rivera',
-      'image': 'https://randomuser.me/api/portraits/men/7.jpg',
-      'time': '10:00 AM',
-    },
-    {
-      'name': 'Mary Gratton',
-      'image': 'https://randomuser.me/api/portraits/women/8.jpg',
-      'time': '10:00 AM',
-    },
-    {
-      'name': 'Annie Medved',
-      'image': 'https://randomuser.me/api/portraits/men/9.jpg',
-      'time': '10:00 AM',
-    },
-    {
-      'name': 'Regina Bearden',
-      'image': 'https://randomuser.me/api/portraits/women/10.jpg',
-      'time': '10:00 AM',
-    },
+  final List<Map<String, dynamic>> allChats = const [
+    {'name': 'Regina Bearden', 'image': 'https://randomuser.me/api/portraits/women/6.jpg', 'time': '10:00 AM'},
+    {'name': 'Rhonda Rivera', 'image': 'https://randomuser.me/api/portraits/men/7.jpg', 'time': '10:00 AM'},
+    {'name': 'Mary Gratton', 'image': 'https://randomuser.me/api/portraits/women/8.jpg', 'time': '10:00 AM'},
+    {'name': 'Annie Medved', 'image': 'https://randomuser.me/api/portraits/men/9.jpg', 'time': '10:00 AM'},
+    {'name': 'Regina Bearden', 'image': 'https://randomuser.me/api/portraits/women/10.jpg', 'time': '10:00 AM'},
   ];
+
+  late List<Map<String, dynamic>> filteredChats;
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    filteredChats = List.from(allChats);
+    _searchController.addListener(_filterChats);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterChats() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        filteredChats = List.from(allChats);
+        _isSearching = false;
+      } else {
+        filteredChats = allChats.where((chat) {
+          return chat['name']!.toLowerCase().contains(query);
+        }).toList();
+        _isSearching = true;
+      }
+    });
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      filteredChats = List.from(allChats);
+      _isSearching = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,13 +79,16 @@ class MessagesScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {},
+          onPressed: () => Navigator.pop(context),
         ),
         title: user != null
             ? Text('${user.name}\'s Messages')
             : const Text('Messages'),
         actions: [
-          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {},
+          ),
         ],
       ),
       body: Padding(
@@ -80,8 +96,8 @@ class MessagesScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Status contacts row
             SizedBox(
-              //color: Colors.red,
               height: 120,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -93,10 +109,7 @@ class MessagesScreen extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           radius: 30,
-                          backgroundImage: NetworkImage(
-                            contacts[index]['image']!,
-                          ),
-                          //backgroundImage: AssetImage(contacts[index]['image']!),
+                          backgroundImage: NetworkImage(contacts[index]['image']!),
                         ),
                         const SizedBox(height: 5),
                         Text(contacts[index]['name']!),
@@ -106,12 +119,21 @@ class MessagesScreen extends StatelessWidget {
                 },
               ),
             ),
+            
             const SizedBox(height: 10),
+            
+            // Search bar
             TextField(
+              controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search',
+                hintText: 'Search chats',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: const Icon(Icons.mic),
+                suffixIcon: _isSearching
+                    ? IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: _clearSearch,
+                      )
+                    : const Icon(Icons.mic),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -120,65 +142,60 @@ class MessagesScreen extends StatelessWidget {
                 fillColor: Colors.grey[200],
               ),
             ),
+            
             const SizedBox(height: 20),
-            const Text(
-              'Chat',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            
+            // Chat list header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Chats',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                if (filteredChats.isEmpty)
+                  Text(
+                    'No matches',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  ),
+              ],
             ),
+            
+            const SizedBox(height: 10),
+            
+            // Chat list
             Expanded(
-              child: ListView.separated(
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      radius: 30,
-                      backgroundImage: NetworkImage(chats[index]['image']!),
-                    ),
-                    title: Text(chats[index]['name']!),
-                    subtitle: Text('Last message here...'),
-                    trailing: Text(chats[index]['time']!),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatScreen(
-                            chatName: chats[index]['name']!,
-                            chatImage: chats[index]['image']!,
+              child: filteredChats.isEmpty
+                  ? const Center(
+                      child: Text('No conversations found'),
+                    )
+                  : ListView.separated(
+                      itemBuilder: (context, index) {
+                        final chat = filteredChats[index];
+                        return ListTile(
+                          leading: CircleAvatar(
+                            radius: 30,
+                            backgroundImage: NetworkImage(chat['image']!),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 15),
-                itemCount: chats.length,
-              ),
-              // child: ListView.builder(
-              //   itemCount: chats.length,
-              //   shrinkWrap: true,
-              //   physics: const BouncingScrollPhysics(),
-              //   itemBuilder: (context, index) {
-              //     return ListTile(
-              //       leading: CircleAvatar(
-              //         radius: 30,
-              //         backgroundImage: AssetImage(chats[index]['image']!),
-              //       ),
-              //       title: Text(chats[index]['name']!),
-              //       trailing: Text(chats[index]['time']!),
-              //       onTap: () {
-              //         Navigator.push(
-              //           context,
-              //           MaterialPageRoute(
-              //             builder: (context) => ChatScreen(
-              //               chatName: chats[index]['name']!,
-              //               chatImage: chats[index]['image']!,
-              //             ),
-              //           ),
-              //         );
-              //       },
-              //     );
-              //   },
-              // ),
+                          title: Text(chat['name']!),
+                          subtitle: Text('Last message here...'),
+                          trailing: Text(chat['time']!),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatScreen(
+                                  chatName: chat['name']!,
+                                  chatImage: chat['image']!,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      separatorBuilder: (context, index) => const Divider(height: 15),
+                      itemCount: filteredChats.length,
+                    ),
             ),
           ],
         ),

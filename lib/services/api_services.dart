@@ -5,7 +5,7 @@ import 'package:japx/japx.dart';
 class ApiService {
   static const String _baseUrl = 'https://test.myfliqapp.com/api/v1';
 
-  Future<bool> requestOtp(String phone) async {
+  Future<bool> requestOtp(String phone, {required String otp}) async {
     final url = Uri.parse('$_baseUrl/auth/registration-otp-codes/actions/phone/send-otp');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
